@@ -1,0 +1,3 @@
+Node1 .XOR 200 300 In1 In2
+Node2 .AND 100 200 In3 In4
+OUT .OR 300 200 Node1 Node2

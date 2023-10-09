@@ -1,0 +1,7 @@
+Node1 .XOR 400 400 In1 In2 In3 In4
+Node2 .AND 300 500 In3 In4
+Node3 .XOR 200 200 Node1 Node2
+Node4 .AND 100 9000 In1 In3 In5 
+Node5 .OR  500 500 In2 In5
+Node6 .AND 400 400 Node4 Node5
+OUT .XOR 200 200 Node3 Node6

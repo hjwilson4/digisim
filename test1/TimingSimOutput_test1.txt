@@ -1,0 +1,25 @@
+This file contains the Timing Simulation output:
+In4 0 0
+Node5 0 0
+Node6 0 0
+Node2 0 0
+OUT 0 0
+Node3 0 0
+Node4 0 0
+In5 0 0
+Node1 0 0
+In1 0 0
+In2 0 0
+In3 0 0
+In1 1000 1
+In1 1001 0
+In1 1002 1
+In2 1100 1
+In3 1200 1
+In4 1300 1
+In5 1400 1
+Node4 1500 1
+Node5 1600 1
+Node2 1600 1
+Node3 1800 1
+Node6 2000 1
