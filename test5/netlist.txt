@@ -1,0 +1,33 @@
+# Format: NodeName .GATE RiseTime FallTime Input1 Input2 ...
+Node1   .NAND  200  300  In1  In2
+Node2   .NOR   100  500  In3  In4
+Node3   .XNOR   50  200  In1  Node2
+Node4   .XOR   300  240  Node1  In5
+Node5   .NAND  200  150  In6  Node3
+Node6   .AND   100  100  Node3  Node4
+
+# First DFF pipeline stage
+DFF1   .DFF   400 50 Node6  CLK  Q1  Q1n  # Register output of Node6
+
+Node7   .OR    250  180  Q1  Node5
+Node8   .NOR   120  190  Node1  Node6
+Node9   .XOR   200  210  Node7  Node8
+
+# Second DFF pipeline stage
+DFF2   .DFF   120  60  Node9  CLK  Q2  Q2n  # Register output of Node9
+
+OUT1    .OR    500  380  Q2  Node5
+OUT2    .AND   200  210  Q1  In7
+OUT3    .NAND  550  340  Node2  Q2
+
+# Third DFF pipeline stage
+DFF3   .DFF   130  70  OUT3  CLK  Q3  Q3n  # Register output before final logic
+
+Node10  .NAND  180  220  Q3  In8
+Node11  .OR    140  170  Q2  Node10
+Node12  .XOR   160  200  Q3  Node11
+
+# Fourth DFF pipeline stage
+DFF4   .DFF   110  175 Node12  CLK  Q4  Q4n  # Register output before final AND
+
+OUT4    .AND   240  310  Q4  Q1
