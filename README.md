@@ -15,8 +15,8 @@ will be written to the same directory the program is run from. The simulator cur
 logic bit values 0 & 1. Integrating additional logic values U, X, and Z will be done in future versions
 of the simulator.
 
-				*Note: Fault Vector Generation will overwrite existing Functional Sim File. 
-              Please note any inefficiencies and report to hjwilson@caltech.edu
+*Note: Fault Vector Generation will overwrite existing Functional Sim File. 
+Please note any inefficiencies and report to hjwilson@caltech.edu
 
 For examples, see test1-5 folders in the folder. Each of these folders contain a .txt netlist and input file
 to be run with Digisim. Test5 is the only test containing sequential logic DFFs and is also significantly 
