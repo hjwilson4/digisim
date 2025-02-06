@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------------------------------------------
-// --------------------------------------------- EE 150 DigiSim -----------------------------------------------------
+// ---------------------------------------------------- DigiSim -----------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------
 // Description: This file contains a Digital Logic Simulator written in C++ for the G++ compiler. The simulator which 
 //              we will call DigiSim, has 3 main functions: Functional Simulations, Timing Simulations, and Fault 
@@ -7,42 +7,40 @@
 //              .txt file and then choose which function to perform on the netlist by typing in [y] or [n] to each 
 //              option. If the user respnods [y] to a functional or timing simulation, then they will also be prompted
 //              to input another .txt input file for the simulator. The netlist that is input by the user must follow
-//              the P-Silos guidelines for defining netlists. Additionally, the current iteration of this program only
-//              supports simple combinational gates (AND, OR, XOR, NAND, NOR, XNOR). More gates, including sequential 
-//              components such as DFFs will be integrated in a future version. If a timing simulation is run, the 
-//              output file "TimingSimOutput" will be written to the same directory the program is run from. Similarly,
-//              if a functional simulation is run, the output file "FunctionalSimOutput" will be written to the same 
-//              directory the program is run from. If Fault Vector Generation is run, the output file "FaultVectors"
+//              the P-Silos guidelines for defining netlists. If a timing simulation is run, the 
+//              output file "TimingSimOutput.vcd" will be written to the same directory the program is run from. Similarly,
+//              if a functional simulation is run, the output file "FunctionalSimOutput.vcd" will be written to the same 
+//              directory the program is run from. If Fault Vector Generation is run, the output file "FaultVectors.txt"
 //              will be written to the same directory the program is run from. The simulator currently only supports
 //              logic bit values 0 & 1. Integrating additional logic values U, X, and Z will be done in future versions
-//              of the simulator. Fault Vector Generation is done using a simple trial-and-error method but can be made
-//				more efficient in the future. 
+//              of the simulator.
 //
-//				The majority of this project was a learning exercise for C++ so inefficiencies will be ironed out in 
-//              future versions of the simulator. *Note: Fault Vector Generation will overwrite existing Functional Sim File. 
+//				*Note: Fault Vector Generation will overwrite existing Functional Sim File. 
+//              Please note any inefficiencies and report to hjwilson@caltech.edu
 //
 // Table of Contents:
-// 		Line 76   :     Enumerated type logic values for the circuit. These logic values are present on all circuit nodes. 
-// 		Line 86   :     class Node defines Node objects for the circuit. 
-//      Line 130  :     class Component defines base level Component objects for the circuit.
-//      Line 157  :     class ComboLogicGate defines a sub-base class of simple Combinatorial gates for the circuit. 
-//		Line 170  :     class ANDgate defines the child class for AND gate Component objects. 
-//		Line 271  :     class ORgate defines the child class for OR gate Component objects. 
-//		Line 373  :     class XORgate defines the child class for XOR gate Component objects. 
-//		Line 474  :     class NANDgate defines the child class for NAND gate Component objects.
-//		Line 577  :     class NORgate defines the child class for NOR gate Component objects.
-//		Line 680  :     class XNORgate defines the child class for XNOR gate Component objects.
-//		Line 789  :     class Event defines Event objects for the Event Queue used in simulators. 
-//		Line 808  :     struct LessThanTime defines the Event Queue time comparator between Events.
-//		Line 820  :     class EventQueue defines Event Queue objects for the simulators. 
-//		Line 876  :     class Circuit defines the Circuit object for the simulators. Describes top level connections. 
-//		Line 1045 :     Circuit:Function Timing Simulation defines the process of running a timing simulation.
-//		Line 1161 :     Circuit:Function Functional Simulation defines the process of running a functional simulation. 
-//		Line 1394 :     class FaultVectorGenerator defines the Fault Vector Generator for generating Fault Vectors. 
-//		Line 1572 :     main() function (runs program). 
+// 		Line 85   :     Enumerated type logic values for the circuit. These logic values are present on all circuit nodes. 
+// 		Line 95   :     class Node defines Node objects for the circuit. 
+//      Line 139  :     class Component defines base level Component objects for the circuit.
+//      Line 158  :     class ComboLogicGate defines the child class for Combinatorial gates within Component. 
+//      Line 177  :     class DFF defines the child class of DFF gates within Component. 
+//		Line 239  :     class ANDgate defines the child class of AND gate within ComboLogicGate. 
+//		Line 340  :     class ORgate defines the child class for OR gate within ComboLogicGate. 
+//		Line 442  :     class XORgate defines the child class for XOR gate within ComboLogicGate. 
+//		Line 543  :     class NANDgate defines the child class for NAND gate within ComboLogicGate.
+//		Line 646  :     class NORgate defines the child class for NOR gate within ComboLogicGate.
+//		Line 749  :     class XNORgate defines the child class for XNOR gate within ComboLogicGate.
+//		Line 858  :     class Event defines Event objects for the Event Queue used in simulators. 
+//		Line 877  :     struct LessThanTime defines the Event Queue time comparator between Events.
+//		Line 889  :     class EventQueue defines Event Queue objects for the simulators. 
+//		Line 945  :     class Circuit defines the Circuit object for the simulators. Describes top level connections. 
+//		Line 1166 :     Circuit:Function Timing Simulation defines the process of running a timing simulation.
+//		Line 1333 :     Circuit:Function Functional Simulation defines the process of running a functional simulation. 
+//		Line 1725 :     class FaultVectorGenerator defines the Fault Vector Generator for generating Fault Vectors. 
+//		Line 1911 :     main()
 //
 // Revision History:
-//		May 09, 2023    Hector Wilson      Started assignment 
+//		May 09, 2023    Hector Wilson      Initial revision 
 //		May 15, 2023    Hector Wilson      Completed Node and Component general classes
 //      May 20, 2023    Hector Wilson      Completed working Circuit class for constructing Circuit from netlist
 //		May 23, 2023    Hector Wilson      Added Event Queue methods and classes for Timing Simulation. 
@@ -51,6 +49,14 @@
 //		June 07, 2023   Hector Wilson      Finished Functional Simulator, Started Fault Vector Generator
 //		June 15, 2023   Hector Wilson      Completed Fault Vector Generator. 
 //		June 16, 2023   Hector Wilson      Added thorough comments and most test cases to directory. 
+// 		Sept     2023   Hector Wilson      Fixed bugs in functional sim
+//      Jan      2024   Hector Wilson      Added icon to .exe :)
+//      Sept     2024   Hector Wilson      Tweaked Circuit constructor class. Compartmentalized code into more helper
+//                                         functions. 
+//      Oct      2024   Hector Wilson      Added sequential logic DFFs and reformatted functional/timing simulations 
+//                                         to be compatible with sequential logic
+//      Nov      2024   Hector Wilson      Added checks for setup/hold time violations on DFFs
+//      Jan      2025   Hector Wilson      Reformatted for VCD output generation
 
 #include <string>
 #include <fstream>
@@ -61,18 +67,22 @@
 #include <set>
 #include <cstdio>
 #include <iostream>
+#include <unordered_map>
+#include <map>
 #include <queue>
 #include <cstdlib>
+#include <list>
 #include <time.h>
 #include <filesystem>
 using namespace std;
+
 
 // ------------------------------------------------------------------------------------------------------------------
 // -------------------------------------------- Circuit Logic Values ------------------------------------------------
 // ------------------------------------------------------------------------------------------------------------------
 // Logic Values allowed for the circuit 
 // Currently, the simulator only supports bit values 0 and 1. 
-// Future versions will incorporate X, U, and Z logic values. 
+// Future versions may incorporate X, U, and Z logic values. 
 enum LogicValue { ZERO, ONE, X, U, Z};
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -128,15 +138,7 @@ public:
 // Additionally, there is the pointer to the output Node and the integer delay 
 // associated with updating this component. 
 class Component {
-protected:
-	Node *inputs[8];   // we have up to 8 pointers to the inputs of each circuit component. 
-	string outputName; // Node name on the output of this component
-	vector<int> inputValues;
-	vector<string> inputNames;
 public:
-	Node *output;	   // 1 pointer to the output of each circuit component. 
-	int delay;		   // integer delay associated with updating this component's output logic value. 
-	
 	// These functions will have specific definitions depending on the gate being implemented. 
 	virtual void Calculate() {};
 	virtual int PreCalc() { return 0; }
@@ -156,12 +158,79 @@ public:
 // delays associated with each one of these gates. The current and previous output value. 
 class ComboLogicGate: public Component {
 protected:
+	string outputName; // Node name on the output of this component
+	vector<int> inputValues;
 	int rise_Time;
 	int fall_Time;
 	int outputValue = 0;
 	int prevoutputValue = 0;
 	LogicValue outVal = ZERO;
 public: 
+	vector<string> inputNames;
+	Node *inputs[8];   // we have up to 8 pointers to the inputs of each circuit component. 
+	Node *output;	   // 1 pointer to the output of each circuit component. 
+	int delay;		   // integer delay associated with updating this component's output logic value. 
+};
+
+// ------------------------------------------------------------------------------------------------------------------
+// This class implements a sub-base class for a DFF sequential logic gate.
+class DFF: public Component {
+public:
+	Node* D;   // Data input
+    Node* CLK; // Clock input
+    Node* Q;   // Stored value output
+    Node* Qn;  // Complement output 
+
+    bool lastClockState; // Tracks previous clock state
+    float setupTime;  // Time before the clock edge when D must be stable
+    float holdTime;   // Time after the clock edge when D must remain stable
+    LogicValue outQ, outQn; // output states of DFF
+    int Dchange_time=0, CLKchange_time=0;
+
+    DFF(Node* d, Node* clk, Node* q, Node* qn, float setup, float hold) {
+        this->D = d;
+        this->CLK = clk;
+        this->Q = q;
+        this->Qn = qn;
+        this->setupTime = setup;
+        this->holdTime = hold;
+        lastClockState = false; // Start with clock low
+    }
+
+    // Calculate function for DFF takes in the time of the clock change for calculating
+    // setup and hold time violations and the simulation type. 
+    // if simType=0, doing functional sim-->dont report violations
+    // if simType=1, doing timing sim-->report violations
+    // 
+    // default type is functional sim
+    void Calculate(int CLKtime = -1, int simType = 0) {
+        // Edge-triggered behavior: Only update on a rising clock edge
+        if (lastClockState == false && CLK->CurValue == ONE) { 
+            outQ = D->CurValue;  // Store D on clock edge
+            outQn = (D->CurValue == ONE) ? ZERO : ONE; // invert D on clock edge
+
+            // Update time of last CLK change
+            CLKchange_time = CLKtime;
+            if ((CLKchange_time - Dchange_time) < setupTime && simType == 1) {
+            	cout << "ERROR: setup time violation at time " << CLKtime 
+            	     << " on Q output node " << Q->name << endl;
+            }
+        }
+
+        // Update last clock state
+        lastClockState = (CLK->CurValue == ONE);
+    }
+
+    LogicValue ReadQ() {return outQ;}
+    LogicValue ReadQn() {return outQn;}
+
+    void ErrTimersD(int time, int simType = 0) {
+    	Dchange_time = time;
+    	if ((Dchange_time - CLKchange_time) < holdTime && simType == 1) {
+    		cout << "ERROR: hold time violation at time " << time 
+    			 << " on Q output node " << Q->name << endl;
+    	}
+    }
 };
 
 // ------------------------------------------------------------------------------------------------------------------
@@ -877,14 +946,16 @@ class Circuit {
 private:
 	// Circuit objects contain the following private attributes:
 	string netlist;                // user-input netlist detailing top-level circuit connections
-	Component **comps = NULL;      // array of pointers to Component objects
-	set<Node*> nodes;			   // set of pointers to Node objects
+	ComboLogicGate **comps = NULL; // array of pointers to combinatorial Component objects
+	DFF **dffs = NULL;             // array of pointers to sequential DFF objects
+	set<Node*> nodes;			   // set of pointers to all Node objects
 	set<Node*> outputnodes;        // set of pointers to output Node objects
 	set<Node*> inputnodes;		   // set of pointers to input Node objects
-	set<string> nodeNames;         // set of strings of input Node names
+	set<string> nodeNames;         // set of strings of all Node names
 	EventQueue queue;              // the Event Queue for the Circuit
   
-	int compCnt=0;				   // the number of Components in the Circuit
+	int compCnt=0;				   // the number of combo Components in the Circuit
+	int dffCnt=0;                  // the number of DFFs in the Circuit
 	int nodeCnt=0;				   // the number of Nodes in the Circuit
 public:
 	// The constructor for the Circuit object is passed a string netlist file. The constructor opens the file
@@ -892,17 +963,12 @@ public:
 	Circuit(string z) {
 		netlist = z;
 
+		list<string> ComboLogicOptions = {".OR", ".AND", ".XOR", ".NOR", ".NAND", ".XNOR"};
+
 		// BEGIN READING NETLIST FILE
 		string line;
 		ifstream MyReadFile(z);
 		while (getline (MyReadFile,line)) {
-			// Allocate +1 space in Component array
-			Component **tempcomps = new Component*[compCnt+1];
-			// Add all previous Components in old array to new array
-			for (int j=0; j<compCnt; ++j) {
-				tempcomps[j] = comps[j];
-			}
-
 			// The input netlist has the following format to be read:
 			// OUTPUT   .COMPONENT    (DELAYS)    INPUT1     INPUT2    ....
 			stringstream linestream(line);
@@ -910,89 +976,144 @@ public:
 			string out;      // 1 output
 			string compType; // component type
 			string ins[8];   // up to 8 inputs
-			int delay[11];   // up to 11 delay parameters 
+			int delay[2];   // up to 2 delay parameters 
 			linestream >> out >> compType;
 
-			Node **inputPtr = NULL;		// array of input pointers used to create Components
-			inputPtr = new Node*[8];    // array should have length 8 (8 is max # of inputs for a Component)
+			// ------------------------------
+			// skip comment lines
+			if (out == "#") {continue;} 
 
-			Node *o = new Node(out);	// Create new Node for the output of this line (each line will have a brand new output Node)
-			nodes.insert(o);            // insert new Node to relevant data sets 
-			nodeNames.insert(out);
+			// ------------------------------
+			// process combinatorial logic unit
+			if (find(ComboLogicOptions.begin(), ComboLogicOptions.end(), compType) != ComboLogicOptions.end()) {
+				// Allocate +1 space in Component array
+				ComboLogicGate **tempcomps = new ComboLogicGate*[compCnt+1];
+				// Add all previous Components in old array to new array
+				for (int j=0; j<compCnt; ++j) {
+					tempcomps[j] = comps[j];
+				}
 
-			// read in the rest of the data from the line
-			linestream >> delay[0] >> delay[1] >> ins[0] >> ins[1] 
-					   >> ins[2] >> ins[3] >> ins[4] >> ins[5] >> ins[6] >> ins[7];
-			// This for loop determines if an input Node already exists and sets up the appropriate pointers
-			// to be used to create the Component object of this netlist line. 
-			for (int i=0; i < 8; i++) {
-				if (!ins[i].empty()) {
-					// Node already exists --> use old pointer
-					if (nodeNames.find(ins[i]) != nodeNames.end()) {
-						for(set<Node*>::iterator k = nodes.begin();k!=nodes.end();k++)
-				    	{
-				        	if ((*k)->name == ins[i]) {
-				        		inputPtr[i] = *k;
-				        	}
-				    	}
+
+				Node **inputPtr = NULL;		// array of input pointers used to create Components
+				inputPtr = new Node*[8];    // array should have length 8 (8 is max # of inputs for a Component)
+
+
+				// Find or create output node for logic gate
+				Node *o = FindOrCreateNode(out, nodes, nodeNames);
+
+				// read in rise and fall time for combo logic gate
+				linestream >> delay[0] >> delay[1];
+				// read in input(s) for combo logic gate
+				linestream >> ins[0] >> ins[1] >> ins[2] >> ins[3] >> ins[4] >> ins[5] >> ins[6] >> ins[7];
+
+				// Find or create input node(s) for logic gate
+				for (int i=0; i < 8; i++) {
+					if (!ins[i].empty()) {
+						inputPtr[i] = FindOrCreateNode(ins[i], nodes, nodeNames);
 					}
-					// Node doesn't already exist --> create New Node
-					else {
-						inputPtr[i] = new Node(ins[i]);
-						nodes.insert(inputPtr[i]);
-						nodeNames.insert(ins[i]);						
+					// If the Component doesn't user up all 8 inputs then set those input pointers to NULL
+					else{
+						inputPtr[i] = NULL;
 					}
 				}
-				// If the Component doesn't user up all 8 inputs then set those input pointers to NULL
-				else{
-					inputPtr[i] = NULL;
+
+				// Determine the type of Component being made and create the Component with proper Node pointers and delay values. 
+				if (compType.compare(".OR") == 0) {
+					ORgate *q = new ORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+					                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
 				}
-			}
+				else if (compType.compare(".AND") == 0) {
+					ANDgate *q = new ANDgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+						                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
+				}
+				else if (compType.compare(".XOR") == 0) {
+					XORgate *q = new XORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+						                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
+				}
+				else if (compType.compare(".NOR") == 0) {
+					NORgate *q = new NORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+						                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
+				}
+				else if (compType.compare(".NAND") == 0) {
+					NANDgate *q = new NANDgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+						                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
+				}
+				else if (compType.compare(".XNOR") == 0) {
+					XNORgate *q = new XNORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
+						                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
+					tempcomps[compCnt] = q;
+				}
 
-			// Determine the type of Component being made and create the Component with proper Node pointers and delay values. 
-			if (compType.compare(".OR") == 0) {
-				ORgate *q = new ORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-				                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
+				// Increase the Component count by 1 after reading each line of a netlist. 
+				++compCnt;
+				// Delete old Component array
+				delete[] comps;
+				// And set it to new Component array
+				comps = tempcomps;
 			}
-			else if (compType.compare(".AND") == 0) {
-				ANDgate *q = new ANDgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-					                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
-			}
-			else if (compType.compare(".XOR") == 0) {
-				XORgate *q = new XORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-					                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
-			}
-			else if (compType.compare(".NOR") == 0) {
-				NORgate *q = new NORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-					                     inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
-			}
-			else if (compType.compare(".NAND") == 0) {
-				NANDgate *q = new NANDgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-					                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
-			}
-			else if (compType.compare(".XNOR") == 0) {
-				XNORgate *q = new XNORgate(o, delay[0], delay[1], inputPtr[0], inputPtr[1], inputPtr[2], 
-					                       inputPtr[3], inputPtr[4], inputPtr[5], inputPtr[6], inputPtr[7]);
-				tempcomps[compCnt] = q;
-			}
+			// ------------------------------
+			// process sequential logic DFF unit
+			else if (compType.compare(".DFF") == 0) {
+				// Allocate +1 space in DFF array
+				DFF **tempdffs = new DFF*[dffCnt+1];
+				// Add all previous DFFs in old array to new array
+				for (int j=0; j<dffCnt; ++j) {
+					tempdffs[j] = dffs[j];
+				}
 
-			// Increase the Component count by 1 after reading each line of a netlist. 
-			++compCnt;
-			// Delete old Component array
-			delete[] comps;
-			// And set it to new Component array
-			comps = tempcomps;
-		};
+				float setupTime, holdTime;
+				string D, Q, Qn, CLK;
+				linestream >> setupTime >> holdTime >> D >> CLK >> Q >> Qn;
+				// Create or reuse nodes for this DFF
+				// Use the helper function to retrieve or create nodes
+			    Node* dNode = FindOrCreateNode(D, nodes, nodeNames);
+			    Node* clkNode = FindOrCreateNode(CLK, nodes, nodeNames);
+			    Node* qNode = FindOrCreateNode(Q, nodes, nodeNames);
+			    Node* qnNode = FindOrCreateNode(Qn, nodes, nodeNames);
+
+			    // Create and store the new DFF component
+			    DFF* dff = new DFF(dNode, clkNode, qNode, qnNode, setupTime, holdTime);
+			    tempdffs[dffCnt] = dff;
+
+			    // Increase the Component count by 1 after reading each line of a netlist. 
+				++dffCnt;
+				// Delete old Component array
+				delete[] dffs;
+				// And set it to new Component array
+				dffs = tempdffs;	
+
+			}
+		}
 		// Call the FindIOs function to determine which nodes are inputs/outputs to the netlist. 
 		FindIOs();
 
 		// Close File. 
 		MyReadFile.close();
+		cout << "Circuit Netlist Mapped" << endl;
+	}
+
+	// ------------------------------------------------------------------------------------------------------------------
+	// Helper function to search through existing nodes
+	// If a node already exists with the nodeName, return that node
+	// Otherwise, create a new node with that nodeName
+	Node* FindOrCreateNode(const string& nodeName, set<Node*>& nodes, set<string>& nodeNames) {
+	    // Check if the node already exists
+	    for (Node* node : nodes) {
+	        if (node->name == nodeName) {
+	            return node; // Return existing node
+	        }
+	    }
+	    
+	    // If not found, create a new one
+	    Node* newNode = new Node(nodeName);
+	    nodes.insert(newNode);
+	    nodeNames.insert(nodeName);
+	    return newNode;
 	}
 
 	// ------------------------------------------------------------------------------------------------------------------
@@ -1043,29 +1164,56 @@ public:
 	// The Timing Simulator uses an Event Queuing system to determine the order of Events to execute wherein Events 
 	// are queued by realistic execution times based on their associated delays.  
 	void TimingSimulation(string z) {
-		cout << "Starting Timing Simulation" << endl;
+		cout << "Starting Timing Simulation..." << endl;
 
 		string line;
 		int inputTime = 0;
 		ifstream InputFile(z);
-		ofstream OutputFile("TimingSimOutput.txt");
-		OutputFile << "This file contains the Timing Simulation output:" << endl;
+		ofstream VCDFile("TimingSimOutput.vcd");
+		VCDFile << "$date " << __DATE__ << " $end\n";
+	    VCDFile << "$version DigiSim Timing Simulator $end\n";
+	    VCDFile << "$timescale 1ns $end\n";
+	    VCDFile << "$scope module circuit $end\n";
 
-		// first output initial node values (all 0) to the output file at time 0 
-		for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
-			OutputFile << (*i)->name << " " << 0 << " " << (*i)->CurValue << endl;
-		}
+		// Assign unique VCD identifiers
+	    int signalIndex = 1;
+	    unordered_map<string, string> signalMap;
+	    for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
+	        string vcdID = "s" + to_string(signalIndex++);
+	        signalMap[(*i)->name] = vcdID;
+	        VCDFile << "$var wire 1 " << vcdID << " " << (*i)->name << " $end\n";
+	    }
+	    VCDFile << "$upscope $end\n";
+	    VCDFile << "$enddefinitions $end\n";
+
+	    // output initial node values at time 0 (shoud all be 0). 
+	    VCDFile << "$dumpvars\n";
+	    for (auto& nodePair : signalMap) {
+	        VCDFile << "0" << nodePair.second << "\n";  // Set all signals to 0 initially
+	    }
+	    VCDFile << "$end\n";
 
 
+		// first see if any components are expected to change output logic value based on initial state.
+		// if so.. add to queue. 
 		// if we have any NAND, NOR, XNOR gates start by sending these to the event queue at time 0
 		for (int i=0; i < compCnt; i++) {
+		    // calculate all gate outputs at time 0
 			comps[i]->Calculate();
 			int delay = comps[i]->delay;
 
+			// if output of a gate will change (delay != 0) at time 0, add it to queue
 			if (delay != 0) {
 				queue.Append(Event(NULL, comps[i]->output, delay, comps[i]->ReadOutput(), 1));
 			}
 		}
+
+		// also want to update inverse output value of DFFs at time 0 to be 1..
+		// no need to update Q output since it will remain 0. (no clock edge at time 0 possible)
+		// for (int i=0; i < dffCnt; i++) {
+		// 	dffs[i]->Calculate();
+		// 	queue.Append(Event(NULL, dffs[i]->Qn, 0, dffs[i]->ReadQn(), 1));
+		// }
 
 		// Add user defined inputs into the event queue
 		while (getline (InputFile,line)) {
@@ -1102,9 +1250,13 @@ public:
 			// if next in Event Queue is a Node then we update the node value and write the change to the output file. 
 			if (nextEvent.CompNode == 1) {
 				nextEvent.eventNode->UpdateValue(nextEvent.nextVal);
+			
 
 				// *****  Write to the output file the change. ***** 
-        		OutputFile << nextEvent.eventNode->name << " " << nextEvent.eventTime << " " << nextEvent.eventNode->CurValue << endl;
+        		// Write to VCD file
+		        string vcdID = signalMap[nextEvent.eventNode->name];
+		        VCDFile << "#" << nextEvent.eventTime << "\n";
+		        VCDFile << (nextEvent.nextVal == ONE ? "1" : "0") << vcdID << "\n";
 
 
         		// Additionally, if any gates use this Node as an input then we must add them to the Event Queue. 
@@ -1128,30 +1280,50 @@ public:
 						}
 					}
 				}
+				// Now, if any DFFs use this Node as a clock then we must add the DFF to Event Queue to update
+				// its output values Q, Qn.
+				//
+				// Additionally, if this Node is a D input to a DFF, we must start timers to check for setup
+				// and hold time violations.
+				for (int k=0; k < dffCnt; k++) {
+					if (dffs[k]->CLK->name == nextEvent.eventNode->name) {
+						queue.Append(Event(dffs[k], NULL, nextEvent.eventTime, Z, 0));
+					}
+					// to set timers for calculating setup/hold time violations..
+					if (dffs[k]->D->name == nextEvent.eventNode->name) {
+						dffs[k]->ErrTimersD(nextEvent.eventTime, 1); // call function to check for hold time violation
+					}
+				}
 			}
 			// if next in Event Queue is a Component then calculate Component and compute delay
 			else if (nextEvent.CompNode == 0) {
-				nextEvent.eventComp->Calculate();
-				int delay = nextEvent.eventComp->delay;
+				// Only apply delay for combinational gates for now..
+				// 
+				// when a gate changes output state, add the output wire node to queue to update
+				// after delay completes
+			    if (ComboLogicGate* gate = dynamic_cast<ComboLogicGate*>(nextEvent.eventComp)) {
+			    	gate->Calculate(); // Calculate gate change
+			        int delay = gate->delay;  // if delay is none zero, output of gate changed 
+			        if (delay != 0) {
+			            queue.Append(Event(NULL, gate->output, nextEvent.eventTime + delay, 
+			            			 gate->ReadOutput(), 1));
+			        }
+			    }
+			    // DFFs have no delay at the moment.
+			    else if (DFF* dff = dynamic_cast<DFF*>(nextEvent.eventComp)) {
+			    	dff->Calculate(nextEvent.eventTime, 1); // Calculate gate change
+			    	queue.Append(Event(NULL, dff->Q, nextEvent.eventTime, dff->ReadQ(), 1));
+			    	queue.Append(Event(NULL, dff->Qn, nextEvent.eventTime, dff->ReadQn(), 1));
+			    }
 
-				// If the output to the gate changed (delay != 0) then we add the output node to the Event Queue
-				// to update its value.
-				if (delay != 0) {
-					queue.Append(Event(NULL,nextEvent.eventComp->output, nextEvent.eventTime+delay, 
-									   nextEvent.eventComp->ReadOutput(), 1));
-				}
 			}
 			queue.Pop();
 		}
 
-		OutputFile.close();
+		VCDFile.close();
 
-		// Output final node values to the terminal
-		cout << "Final Node Values:" << endl;
-		for(set<Node*>::iterator k = nodes.begin();k!=nodes.end();k++)
-	    {
-	        cout << (*k)->name << " " << (*k)->CurValue << endl;
-	    }
+		// Output completion message
+		cout << "Timing Simulation Complete, waveform stored in TimingSimOutput.vcd" << endl;
 	}
 
 	// -------------------------------------------- FUNCTIONAL SIMULATION --------------------------------------------------
@@ -1162,71 +1334,35 @@ public:
 		string line;
 		int inputTime;
 		ifstream InputFile(z);
-		ofstream OutputFile("FunctionalSimOutput.txt");
-		OutputFile << "This file contains the Functional Simulation output:" << endl;
+		ofstream VCDFile("FunctionalSimOutput.vcd");
+		VCDFile << "$date " << __DATE__ << " $end\n";
+	    VCDFile << "$version DigiSim Timing Simulator $end\n";
+	    VCDFile << "$timescale 1ns $end\n";
+	    VCDFile << "$scope module circuit $end\n";
 
-		// Calculate initial state: start by processing any NAND, NOR, or XNOR gates
-		//
-		//
-		// send any NAND, NOR, XNOR gates to the event queue at time 0
-		for (int i=0; i < compCnt; i++) {
-			comps[i]->Calculate();
-			int delay = comps[i]->delay;
+	    // Assign unique VCD identifiers
+	    int signalIndex = 1;
+	    unordered_map<string, string> signalMap;
+	    for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
+	        string vcdID = "s" + to_string(signalIndex++);
+	        signalMap[(*i)->name] = vcdID;
+	        VCDFile << "$var wire 1 " << vcdID << " " << (*i)->name << " $end\n";
+	    }
+	    VCDFile << "$upscope $end\n";
+	    VCDFile << "$enddefinitions $end\n";
 
-			if (delay != 0) {
-				queue.Append(Event(NULL, comps[i]->output, 0, comps[i]->ReadOutput(), 1));
-			}
+	    // calculate initial state of circuit amid NAND/NOR/XNOR logic
+	    FuncInit(); // initialize functional sim
+
+		// done calculating initial state
+		// output initial node values at time 0, not all 0
+	    VCDFile << "$dumpvars\n";
+	    for (Node* node : nodes) {
+		    string vcdID = signalMap[node->name];
+		    char vcdValue = (node->CurValue == ONE) ? '1' : '0';
+		    VCDFile << vcdValue << vcdID << "\n";  // ✅ Write node value
 		}
-
-		// Process all of the NAND, NOR, XNOR gates in queue. 
-		while (!(queue.PQ).empty()) {
-			Event nextEvent = queue.Top();
-
-			// if next in Event Queue is a Node then we update the node value and write the change to the output file. 
-			if (nextEvent.CompNode == 1) {
-				nextEvent.eventNode->UpdateValue(nextEvent.nextVal);
-
-        		// Additionally, if any gates use this Node as an input then we must add them to the Event Queue. 
-        		for (int k=0; k < compCnt; k++) {
-					vector<string>  names = (comps[k]->ReadInputNames());
-					for (vector<string>::iterator s = names.begin(); s != names.end(); s++) {
-						if ((*s) == nextEvent.eventNode->name) {
-							// Add all components connected to the changing Node to the Event queue
-							//
-							// We check if this input node change is expected to change the output of any gate its connected to. 
-							// If it will, then we cancel the all pending gate changes already in queue, revert the gate, and add the gate
-							// change to the event queue. 
-							//
-							// If the input node change will not change the output of an already pending gate change event then it overrides 
-							// this event and we do nothing.  
-							if (comps[k]->PreCalc() == 1) {
-								queue.Delete(comps[k]->output, comps[k]);
-								queue.Append(Event(comps[k], NULL, nextEvent.eventTime, Z, 0));
-							}
-							break;
-						}
-					}
-				}
-			}
-			// if next in Event Queue is a Component then calculate Component and compute delay
-			else if (nextEvent.CompNode == 0) {
-				nextEvent.eventComp->Calculate();
-				int delay = nextEvent.eventComp->delay;
-
-				// If the output to the gate changed (delay != 0) then we add the output node to the Event Queue
-				// to update its value. For functional simulation, however, we do not add a delay to event time. 
-				if (delay != 0) {
-					queue.Append(Event(NULL,nextEvent.eventComp->output, nextEvent.eventTime, nextEvent.eventComp->ReadOutput(), 1));
-				}
-			}
-			queue.Pop();
-		}
-
-		// Done calculating initial state: 
-		// next output initial node values to the output file at time 0
-		for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
-			OutputFile << (*i)->name << " " << 0 << " " << (*i)->CurValue << endl;
-		}
+	    VCDFile << "$end\n";
 
 		// Finished calculating initial state. Begin Functional Simulation:
 		// Add user defined inputs into the event queue
@@ -1264,7 +1400,13 @@ public:
 			// if next in Event Queue is a Node then we update the node value and write the change to the output file. 
 			if (nextEvent.CompNode == 1) {
 				nextEvent.eventNode->UpdateValue(nextEvent.nextVal);
-        		OutputFile << nextEvent.eventNode->name << " " << nextEvent.eventTime << " " << nextEvent.eventNode->CurValue << endl;
+			
+
+				// *****  Write to the output file the change. ***** 
+        		// Write to VCD file
+		        string vcdID = signalMap[nextEvent.eventNode->name];
+		        VCDFile << "#" << nextEvent.eventTime << "\n";
+		        VCDFile << (nextEvent.nextVal == ONE ? "1" : "0") << vcdID << "\n";
 
 
         		// Additionally, if any gates use this Node as an input then we must add them to the Event Queue. 
@@ -1288,23 +1430,209 @@ public:
 						}
 					}
 				}
+				// Now, if any DFFs use this Node as a clock then we must add the DFF to Event Queue to update
+				// its output values Q, Qn.
+				//
+				// Additionally, if this Node is a D input to a DFF, we must start timers to check for setup
+				// and hold time violations.
+				for (int k=0; k < dffCnt; k++) {
+					if (dffs[k]->CLK->name == nextEvent.eventNode->name) {
+						queue.Append(Event(dffs[k], NULL, nextEvent.eventTime, Z, 0));
+					}
+					// to set timers for calculating setup/hold time violations..
+					if (dffs[k]->D->name == nextEvent.eventNode->name) {
+						dffs[k]->ErrTimersD(nextEvent.eventTime);
+					}
+				}
 			}
 			// if next in Event Queue is a Component then calculate Component and compute delay
 			else if (nextEvent.CompNode == 0) {
-				nextEvent.eventComp->Calculate();
-				int delay = nextEvent.eventComp->delay;
+				// Only apply delay for combinational gates for now..
+				// 
+				// when a gate changes output state, add the output wire node to queue to update
+				// after delay completes
+			    if (ComboLogicGate* gate = dynamic_cast<ComboLogicGate*>(nextEvent.eventComp)) {
+			    	gate->Calculate(); // Calculate gate change
+			        int delay = gate->delay;  // if delay is none zero, output of gate changed 
+			        if (delay != 0) {
+			            queue.Append(Event(NULL, gate->output, nextEvent.eventTime, 
+			            			 gate->ReadOutput(), 1));
+			        }
+			    }
+			    // DFFs have no delay at the moment.
+			    else if (DFF* dff = dynamic_cast<DFF*>(nextEvent.eventComp)) {
+			    	dff->Calculate(nextEvent.eventTime, 0); // Calculate gate change
+			    	queue.Append(Event(NULL, dff->Q, nextEvent.eventTime, dff->ReadQ(), 1));
+			    	queue.Append(Event(NULL, dff->Qn, nextEvent.eventTime, dff->ReadQn(), 1));
+			    }
 
-				// If the output to the gate changed (delay != 0) then we add the output node to the Event Queue
-				// to update its value. For functional simulation, however, we do not add a delay to event time. 
-				if (delay != 0) {
-					queue.Append(Event(NULL,nextEvent.eventComp->output, nextEvent.eventTime, nextEvent.eventComp->ReadOutput(), 1));
-				}
 			}
 			queue.Pop();
 		}
 
-		OutputFile.close();
+		VCDFile.close();
 	}
+
+	void FuncInit() {
+		// Calculate initial state: start by processing any NAND, NOR, or XNOR gates
+		//
+		//
+		// send any NAND, NOR, XNOR gates to the event queue at time 0
+		for (int i=0; i < compCnt; i++) {
+			comps[i]->Calculate();
+			int delay = comps[i]->delay;
+
+			if (delay != 0) {
+				queue.Append(Event(NULL, comps[i]->output, 0, comps[i]->ReadOutput(), 1));
+			}
+		}
+
+		// Process all of the NAND, NOR, XNOR gates in queue. 
+		while (!(queue.PQ).empty()) {
+			Event nextEvent = queue.Top();
+
+			// if next in Event Queue is a Node then we update the node value and write the change to the output file. 
+			if (nextEvent.CompNode == 1) {
+				nextEvent.eventNode->UpdateValue(nextEvent.nextVal);
+
+
+        		// Additionally, if any gates use this Node as an input then we must add them to the Event Queue. 
+        		for (int k=0; k < compCnt; k++) {
+					vector<string>  names = (comps[k]->ReadInputNames());
+					for (vector<string>::iterator s = names.begin(); s != names.end(); s++) {
+						if ((*s) == nextEvent.eventNode->name) {
+							// Add all components connected to the changing Node to the Event queue
+							//
+							// We check if this input node change is expected to change the output of any gate its connected to. 
+							// If it will, then we cancel the all pending gate changes already in queue, revert the gate, and add the gate
+							// change to the event queue. 
+							//
+							// If the input node change will not change the output of an already pending gate change event then it overrides 
+							// this event and we do nothing.  
+							if (comps[k]->PreCalc() == 1) {
+								queue.Delete(comps[k]->output, comps[k]);
+								queue.Append(Event(comps[k], NULL, nextEvent.eventTime, Z, 0));
+							}
+							break;
+						}
+					}
+				}
+				// Now, if any DFFs use this Node as a clock then we must add the DFF to Event Queue to update
+				// its output values Q, Qn.
+				//
+				// Additionally, if this Node is a D input to a DFF, we must start timers to check for setup
+				// and hold time violations.
+				for (int k=0; k < dffCnt; k++) {
+					if (dffs[k]->CLK->name == nextEvent.eventNode->name) {
+						queue.Append(Event(dffs[k], NULL, nextEvent.eventTime, Z, 0));
+					}
+					// to set timers for calculating setup/hold time violations..
+					if (dffs[k]->D->name == nextEvent.eventNode->name) {
+						dffs[k]->ErrTimersD(nextEvent.eventTime);
+					}
+				}
+			}
+			// if next in Event Queue is a Component then calculate Component and compute delay
+			else if (nextEvent.CompNode == 0) {
+				// Only apply delay for combinational gates for now..
+				// 
+				// when a gate changes output state, add the output wire node to queue to update
+				// after delay completes
+			    if (ComboLogicGate* gate = dynamic_cast<ComboLogicGate*>(nextEvent.eventComp)) {
+			    	gate->Calculate(); // Calculate gate change
+			        int delay = gate->delay;  // if delay is none zero, output of gate changed 
+			        if (delay != 0) {
+			            queue.Append(Event(NULL, gate->output, nextEvent.eventTime, 
+			            			 gate->ReadOutput(), 1));
+			        }
+			    }
+			    // DFFs have no delay at the moment.
+			    else if (DFF* dff = dynamic_cast<DFF*>(nextEvent.eventComp)) {
+			    	dff->Calculate(nextEvent.eventTime); // Calculate gate change
+			    	queue.Append(Event(NULL, dff->Q, nextEvent.eventTime, dff->ReadQ(), 1));
+			    	queue.Append(Event(NULL, dff->Qn, nextEvent.eventTime, dff->ReadQn(), 1));
+			    }
+
+			}
+			queue.Pop();
+		}
+	}
+
+	// -------------------------------------------- FUNCTIONAL SIMULATION v2 --------------------------------------------------
+	// This Function runs a Functional Simulation on the Circuit. It takes in as an argument the input file as a string. 
+	// Like the Timing Simulation, the Functional Simulation also uses an Event Queueing system but this time, all
+	// Events originating off a changing input will happen at the same time. i.e. there is 0 delay for all Component updates. 
+	// void FunctionalSimulation2(string z) {
+	//     cout << "Starting Functional Simulation" << endl;
+	//     ofstream OutputFile("FunctionalSimOutputv2.txt");
+	// 	OutputFile << "This file contains the Functional Simulation output:" << endl;
+
+	//     // Step 1: Propagate inputnodes to get initial state 
+	//     // we do this because of NAND/NOR/XNOR logic which could have initial logic 1
+	//     // when inputs are logical 0
+	//     for (Node* node : inputnodes) {
+	//         Propagate(node, 0, OutputFile, true);
+	//     }
+
+	//     // Done calculating initial state: 
+	// 	// next output initial node values to the output file at time 0
+	// 	for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
+	// 		OutputFile << (*i)->name << " " << 0 << " " << (*i)->CurValue << endl;
+	// 	}
+
+	//     // Step 2: Read input changes into the priority queue
+	//     string line;
+	//     ifstream InputFile(z);
+
+
+	//     while (getline(InputFile, line)) {
+	//         stringstream linestream(line);
+	//         string input, newVals;
+	//         float time;
+	//         LogicValue newVal;
+
+	//         linestream >> time >> input >> newVals;
+	//         newVal = (newVals == "1") ? ONE : ZERO;
+
+	//         for (Node* node : nodes) {
+	//             if (node->name == input) {
+	//                 LogicValue oldVal = node->CurValue;  // Store previous value
+	//                 node->UpdateValue(newVal);          // Update value
+	//                 OutputFile << node->name << " " << time << " " << node->CurValue << endl;
+
+	//                 if (oldVal != node->CurValue) { 
+	//                     Propagate(node, time, OutputFile, false);
+	//                 }
+	//                 break;
+	//             }
+	//         }
+	//     }
+	//     InputFile.close();
+	// }
+
+	// // DFS Function to propagate signal changes
+	// // if initial pass, do not log outputs
+	// void Propagate(Node* node, float time, ofstream& OutputFile, bool ip) {
+	// 	for (int i = 0; i < compCnt; i++) {
+	//         Component* comp = comps[i];
+
+	//         // Check if this component has 'node' as an input
+	//         for (int j = 0; j < comp->inputNames.size(); j++) {
+	//             if (comp->inputs[j] == node) { 
+	//                 comp->Calculate();
+	//                 LogicValue oldOutput = comp->output->CurValue;
+	//                 comp->output->UpdateValue(comp->ReadOutput());
+
+	//                 if (oldOutput != comp->output->CurValue) { 
+	//                 	// record to output if not initial pass through
+	//                 	if (!ip) { OutputFile << comp->output->name << " " << time << " " << comp->output->CurValue << endl; }
+	//                     Propagate(comp->output, time, OutputFile, ip);  // **Recursive DFS call**
+	//                 }
+	//                 break;  // No need to check other inputs if this node matches
+	//             }
+	//         }
+	//     }
+	// }
 
 	// ------------------------------------------------------------------------------------------------------------------
 	// This Function changes the passed Node into a stuck-at-y Node where y is passed in. 
@@ -1362,6 +1690,9 @@ public:
 		for (int i = 0; i < compCnt; i++) {
 			delete comps[i];
 		}
+		for (int i = 0; i < dffCnt; i++) {
+			delete dffs[i];
+		}
 
 		// DELETE NODES
 		for (set<Node*>::iterator i = nodes.begin(); i != nodes.end(); i++) {
@@ -1401,7 +1732,7 @@ public:
 	// along with 2*(# of nodes) faulty circuits each with a single stuck-at-1/0 node. 
 	FaultVectorGenerator(string x) {
 		// Create a Good (No Fault) Circuit
-		Circuit *GoodCircuit = new Circuit(x);
+		GoodCircuit = new Circuit(x);
 		// Grab all node names (including inputs/outputs) for the circuit
 		set<string> allNodeNames = GoodCircuit->CircuitNodeNames();
 
@@ -1410,13 +1741,21 @@ public:
 		for (set<string>::iterator j = allNodeNames.begin(); j != allNodeNames.end(); j++) {
 			// create faulty node stuck-at-0 circuit
 			Circuit *sa0circuit = new Circuit(x);
-			sa0circuit->CreateStuckAt((*j), ZERO);
-			faultyCircuits.insert(sa0circuit);
+			if (sa0circuit) {
+			    sa0circuit->CreateStuckAt((*j), ZERO);
+			    faultyCircuits.insert(sa0circuit);
+			} else {
+			    cerr << "Error: Could not create stuck-at-0 circuit for node " << *j << endl;
+			}
 
 			// create faulty node stuck-at-1 circuit 
 			Circuit *sa1circuit = new Circuit(x);
-			sa1circuit->CreateStuckAt((*j), ONE);
-			faultyCircuits.insert(sa1circuit);
+			if (sa1circuit) {
+			    sa1circuit->CreateStuckAt((*j), ONE);
+			    faultyCircuits.insert(sa1circuit);
+			} else {
+			    cerr << "Error: Could not create stuck-at-1 circuit for node " << *j << endl;
+			}
 		}
 	}
 
@@ -1569,7 +1908,7 @@ public:
 
 
 // MAIN
-int main() {
+int main(int argc, char *argv[]) {
 	// Retrieve circuit netlist file
 	string netlistFile;
 	cout << "Enter netlist file: " << endl;

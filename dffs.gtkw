@@ -1,0 +1,29 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Wed Feb 05 20:32:01 2025
+[*]
+[dumpfile] "C:\Users\hecto\OneDrive\Desktop\jr\EE150\TimingSimOutput.vcd"
+[dumpfile_mtime] "Wed Feb 05 20:29:53 2025"
+[dumpfile_size] 4416
+[savefile] "C:\Users\hecto\OneDrive\Desktop\jr\EE150\dffs.gtkw"
+[timestart] 4850
+[size] 1000 600
+[pos] -1 -1
+*-11.000000 9160 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 197
+[signals_width] 78
+[sst_expanded] 1
+[sst_vpaned_height] 153
+@28
+circuit.CLK
+circuit.Node6
+circuit.Node9
+circuit.OUT3
+circuit.Node12
+circuit.Q1
+circuit.Q2
+circuit.Q3
+@29
+circuit.Q4
+[pattern_trace] 1
+[pattern_trace] 0
