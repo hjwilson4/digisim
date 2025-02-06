@@ -18,7 +18,7 @@ of the simulator.
 *Note: Fault Vector Generation will overwrite existing Functional Sim File. 
 Please note any inefficiencies and report to hjwilson@caltech.edu
 
-For examples, see test1-5 folders in the folder. Each of these folders contain a .txt netlist and input file
+For examples, see test1-5 folders. Each of these folders contain a .txt netlist and input file
 to be run with Digisim. Test5 is the only test containing sequential logic DFFs and is also significantly 
 more complex than tests1-4. 
 
