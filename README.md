@@ -15,6 +15,15 @@ will be written to the same directory the program is run from. The simulator cur
 logic bit values 0 & 1. Integrating additional logic values U, X, and Z will be done in future versions
 of the simulator.
 
+### P-Silos Netlist format (.txt): 
+Combinatorial Logic: 
+[Output node name] [.Gate Type] [rise time] [fall time] [input node name 1] [input node name 2] ... [input node name 8]
+DFF Logic:
+[DFF Identifier] [.Gate Type] [setup time] [hold time] [D input node name] [Clock node name] [Q output node name] [Qn output node name]
+
+### Input File format (.txt):
+[time] [Node Name] [Logic Value]
+
 *Note: Fault Vector Generation will overwrite existing Functional Sim File. 
 Please note any inefficiencies and report to hjwilson@caltech.edu
 
