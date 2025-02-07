@@ -1360,7 +1360,7 @@ public:
 	    for (Node* node : nodes) {
 		    string vcdID = signalMap[node->name];
 		    char vcdValue = (node->CurValue == ONE) ? '1' : '0';
-		    VCDFile << vcdValue << vcdID << "\n";  // ✅ Write node value
+		    VCDFile << vcdValue << vcdID << "\n";  // Write node value
 		}
 	    VCDFile << "$end\n";
 
