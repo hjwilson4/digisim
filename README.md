@@ -13,7 +13,12 @@ if a functional simulation is run, the output file "FunctionalSimOutput.vcd" wil
 directory the program is run from. If Fault Vector Generation is run, the output file "FaultVectors.txt"
 will be written to the same directory the program is run from. The simulator currently only supports
 logic bit values 0 & 1. Integrating additional logic values U, X, and Z will be done in future versions
-of the simulator.
+of the simulator.  
+\
+\
+Also worth noting, the automatic test pattern generator (ATPG) only works on combinatorial netlists for 
+e.g. a scan chain. The ATPG is incapable of doing sequential pattern generation at the moment. In the 
+example tests, only run Fault Vector Generation on tests1-4. 
 
 ### P-Silos Netlist format (.txt): (see test1-5 examples)
 Combinatorial Logic: 
